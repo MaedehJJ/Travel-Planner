@@ -3,54 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_nav"
-    app:startDestination="@id/listFragment">
+    app:startDestination="@id/mainActivity">
 
-    <fragment
-        android:id="@+id/listFragment"
-        android:name="com.example.travelplanner.list.ListFragment"
-        android:label="ToDo List"
-        tools:layout="@layout/fragment_list" >
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.travelplanner.MainActivity"
+        android:label="Wonderland"
+        tools:layout="@layout/activity_main">
         <action
-            android:id="@+id/action_listFragment_to_updateFragment"
-            app:destination="@id/updateFragment"
-            app:enterAnim="@anim/from_left"
-            app:exitAnim="@anim/to_right"
-            app:popEnterAnim="@anim/from_right"
-            app:popExitAnim="@anim/to_left" />
-        <action
-            android:id="@+id/action_listFragment_to_addFragment"
-            app:destination="@id/addFragment"
+            android:id="@+id/action_mainActivity_to_addNewPlaces"
+            app:destination="@id/addNewPlaces"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right" />
-    </fragment>
-    <fragment
-        android:id="@+id/addFragment"
-        android:name="com.example.travelplanner.add.AddFragment"
-        android:label="Add"
-        tools:layout="@layout/fragment_add" >
+    </activity>
+    <activity
+        android:id="@+id/addNewPlaces"
+        android:name="com.example.travelplanner.add.AddNewPlaces"
+        android:label="Add Your Wonderland :)"
+        tools:layout="@layout/activity_add_new_places">
         <action
-            android:id="@+id/action_addFragment_to_listFragment"
-            app:destination="@id/listFragment"
+            android:id="@+id/action_addNewPlaces_to_mainActivity"
+            app:destination="@id/mainActivity"
             app:enterAnim="@anim/from_left"
             app:exitAnim="@anim/to_right"
-            app:popUpTo="@id/listFragment"
+            app:launchSingleTop="false"
+            app:popUpTo="@id/mainActivity"
             app:popUpToInclusive="true" />
-    </fragment>
-    <fragment
-        android:id="@+id/updateFragment"
-        android:name="com.example.travelplanner.update.UpdateFragment"
-        android:label="Update"
-        tools:layout="@layout/fragment_update" >
-        <action
-            android:id="@+id/action_updateFragment_to_listFragment"
-            app:destination="@id/listFragment"
-            app:enterAnim="@anim/from_right"
-            app:exitAnim="@anim/to_left"
-            app:popUpTo="@id/listFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-
+    </activity>
 </navigation>
