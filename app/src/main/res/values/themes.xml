@@ -18,4 +18,8 @@
         <item name="android:textColorPrimary">#ffff</item>
         <item name="colorControlNormal">#ffff</item>
     </style>
+    <style name="CustomNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/darkBlue</item>
+
+    </style>
 </resources>

@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TravelPlanner">
-        <activity android:name=".add.AddNewPlaces"></activity>
+        <activity android:name=".add.AddNewPlaces"
+            android:screenOrientation="portrait"
+            android:label="ADD WONDERLANDS"
+            android:theme="@style/CustomNoActionBar"></activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">
