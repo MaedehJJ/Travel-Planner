@@ -12,9 +12,10 @@
         <activity android:name=".add.AddNewPlaces"
             android:screenOrientation="portrait"
             android:label="ADD WONDERLANDS"
-            android:theme="@style/CustomNoActionBar"></activity>
+            android:theme="@style/CustomNoActionBar"/>
         <activity
             android:name=".MainActivity"
+            android:label="WONDERLANDS"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
