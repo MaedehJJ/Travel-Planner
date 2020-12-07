@@ -1,13 +1,19 @@
 package com.example.travelplanner.add
 
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.os.Build
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import com.example.travelplanner.R
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -15,11 +21,12 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_add_new_places.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.jar.Manifest
 
 class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
+
     private val calendar: Calendar = Calendar.getInstance()
     lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,21 +53,23 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.dateEt -> {
-                DatePickerDialog(this@AddNewPlaces,
-                        dateSetListener, calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show()
+                DatePickerDialog(
+                    this@AddNewPlaces,
+                    dateSetListener, calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
 
             }
             R.id.addNewImageTxt -> {
-                Toast.makeText(this , "add New image", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "add New image", Toast.LENGTH_LONG).show()
                 val picDialog = AlertDialog.Builder(this)
                 picDialog.setTitle("Select a Photo")
                 val picDialogItems = arrayOf("Select from Gallery", "Capture new photo")
                 picDialog.setItems(picDialogItems) { dialog, which ->
                     when (which) {
                         0 -> choosePhotoFromGallery()
-                        1 -> captureAphoto()
+                        1 -> takePhotoFromCamera()
                     }
                 }
                 picDialog.show()
@@ -68,22 +77,53 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun takePhotoFromCamera() {
+        Dexter.withActivity(this)
+            .withPermissions(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
+            )
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                    if (report!!.areAllPermissionsGranted()) {
+                        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                        startActivityForResult(intent, CAMERA)
+                    }
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    showRationalDialogForPermissions()
+                }
+            }).onSameThread()
+            .check()
+    }
+
     private fun captureAphoto() {
         Toast.makeText(this, "Selected", Toast.LENGTH_LONG).show()
     }
 
     private fun choosePhotoFromGallery() {
-        Dexter.withActivity(this).withPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.CAMERA).withListener(object : MultiplePermissionsListener {
+        Dexter.withActivity(this).withPermissions(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        ).withListener(object : MultiplePermissionsListener {
             override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                if (report?.areAllPermissionsGranted()!!) {
-                    Toast.makeText(this@AddNewPlaces, "Select a Picture from gallery", Toast.LENGTH_LONG).show()
+                if (report!!.areAllPermissionsGranted()) {
+                    val galleryIntent =
+                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(galleryIntent, GALLERY)
                 }
 
             }
 
-            override fun onPermissionRationaleShouldBeShown(p0: MutableList<PermissionRequest>?, p1: PermissionToken?) {
+            override fun onPermissionRationaleShouldBeShown(
+                p0: MutableList<PermissionRequest>?,
+                p1: PermissionToken?
+            ) {
                 showRationalDialogForPermissions()
 
             }
@@ -92,13 +132,21 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun showRationalDialogForPermissions() {
-        AlertDialog.Builder(this).setMessage("You need to grant permissions in order to select an Image from Gallery")
-                .setPositiveButton("Grant Permissions") { _, _ ->
-                    //choosePhotoFromGallery()
-                    Toast.makeText(this, "Go To Setting", Toast.LENGTH_LONG).show()
-                }.setNegativeButton("Cancel") { dialog, which ->
-                    dialog.dismiss()
-                }.show()
+        AlertDialog.Builder(this)
+            .setMessage("You need to grant permissions in order to select an Image from Gallery")
+            .setPositiveButton("Go To Settings") { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+
+            }.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 
     private fun showDateInView() {
@@ -106,5 +154,35 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
         val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
         dateEt.setText(simpleDateFormat.format(calendar.time).toString())
 
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GALLERY) {
+                if (data != null) {
+                    val contentURI = data.data
+                    try {
+                        val selectedImage =
+                            MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
+                        wonderImage.setImageBitmap(selectedImage)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                        Toast.makeText(this, "Failed to load the Image", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }else if(requestCode == CAMERA){
+                val thumbnail : Bitmap = data?.extras?.get("data") as Bitmap
+                wonderImage.setImageBitmap(thumbnail)
+            }
+        }else if (resultCode == Activity.RESULT_CANCELED){
+            Toast.makeText(this , "Canceled" , Toast.LENGTH_LONG).show()
+        }
+    }
+
+    companion object {
+        private const val GALLERY = 1
+        private const val CAMERA = 2
     }
 }
