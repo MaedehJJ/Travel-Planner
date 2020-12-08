@@ -13,6 +13,6 @@ data class PlacesData (
     @ColumnInfo(name = "Date") var date: String,
     @ColumnInfo(name = "Location") var location: String,
     @ColumnInfo(name = "Latitude") var latitude: Double,
-    @ColumnInfo(name = "Longitude") var langitude: Double,
+    @ColumnInfo(name = "Longitude") var longitude: Double,
 
     )

@@ -16,7 +16,11 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.fragment.app.viewModels
 import com.example.travelplanner.R
+import com.example.travelplanner.database.PlacesData
+import com.example.travelplanner.viewModel.PlacesViewModel
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -34,6 +38,11 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
 
     private val calendar: Calendar = Calendar.getInstance()
     lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+    private var savedImageToInternalStorage: Uri? = null
+    var latitude: Double = 0.0
+    var logitude: Double = 0.0
+    private val mPlacesViewModel: PlacesViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -50,8 +59,10 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             showDateInView()
         }
+        showDateInView()
         dateEt.setOnClickListener(this)
         addNewImageTxt.setOnClickListener(this)
+        saveButton.setOnClickListener(this)
     }
 
 
@@ -79,7 +90,32 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
                 }
                 picDialog.show()
             }
+            R.id.saveButton -> {
+                saveToDatabase()
+            }
         }
+    }
+
+    private fun saveToDatabase() {
+        if (titleEt.text.isNullOrEmpty() && descriptionEt.text.isNullOrEmpty() && locationEt.text.isNullOrEmpty() && savedImageToInternalStorage != null) {
+            val newPlace = PlacesData(
+                id = 0,
+                title = titleEt.toString(),
+                description = descriptionEt.toString(),
+                image = savedImageToInternalStorage.toString(),
+                date = dateEt.toString(),
+                location = locationEt.toString(),
+                latitude = latitude,
+                longitude = logitude
+            )
+            mPlacesViewModel.insertData(newPlace)
+            Toast.makeText(this, "Saved Successfully!", Toast.LENGTH_LONG).show()
+
+        } else {
+            Toast.makeText(this, "Fields Can not be Empty", Toast.LENGTH_LONG).show()
+        }
+
+
     }
 
     private fun takePhotoFromCamera() {
@@ -105,10 +141,6 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
                 }
             }).onSameThread()
             .check()
-    }
-
-    private fun captureAphoto() {
-        Toast.makeText(this, "Selected", Toast.LENGTH_LONG).show()
     }
 
     private fun choosePhotoFromGallery() {
@@ -159,7 +191,6 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
         val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
         dateEt.setText(simpleDateFormat.format(calendar.time).toString())
 
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -171,33 +202,34 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
                     try {
                         val selectedImage =
                             MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
-                        saveImageToInternalStorage(selectedImage)
+                        savedImageToInternalStorage = saveImageToInternalStorage(selectedImage)
                         wonderImage.setImageBitmap(selectedImage)
                     } catch (e: IOException) {
                         e.printStackTrace()
                         Toast.makeText(this, "Failed to load the Image", Toast.LENGTH_LONG).show()
                     }
                 }
-            }else if(requestCode == CAMERA){
-                val thumbnail : Bitmap = data?.extras?.get("data") as Bitmap
-                saveImageToInternalStorage(thumbnail)
+            } else if (requestCode == CAMERA) {
+                val thumbnail: Bitmap = data?.extras?.get("data") as Bitmap
+                savedImageToInternalStorage = saveImageToInternalStorage(thumbnail)
                 wonderImage.setImageBitmap(thumbnail)
             }
-        }else if (resultCode == Activity.RESULT_CANCELED){
-            Toast.makeText(this , "Canceled" , Toast.LENGTH_LONG).show()
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(this, "Canceled", Toast.LENGTH_LONG).show()
         }
     }
-    private fun  saveImageToInternalStorage(bitmap: Bitmap): Uri{
+
+    private fun saveImageToInternalStorage(bitmap: Bitmap): Uri {
         val wrapper = ContextWrapper(applicationContext)
-        var file = wrapper.getDir(IMAGE_DIRECTORY , Context.MODE_PRIVATE)
-        file = File(file , "${UUID.randomUUID()}.jpg")
+        var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
+        file = File(file, "${UUID.randomUUID()}.jpg")
         try {
-            val stream : OutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG , 100 , stream)
+            val stream: OutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
             stream.flush()
             stream.close()
 
-        }catch (e: IOException){
+        } catch (e: IOException) {
             e.printStackTrace()
         }
 
