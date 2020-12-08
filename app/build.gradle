@@ -75,4 +75,7 @@ dependencies {
 
     // RecyclerView Animator
     implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
+
+    //debug
+    debugImplementation 'im.dino:dbinspector:3.4.1@aar'
 }
