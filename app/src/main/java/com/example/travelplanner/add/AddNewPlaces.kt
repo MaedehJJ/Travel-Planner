@@ -38,7 +38,7 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
 
     private val calendar: Calendar = Calendar.getInstance()
     lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
-    private var savedImageToInternalStorage: Uri? = null
+    var savedImageToInternalStorage: Uri? = null
     var latitude: Double = 0.0
     var logitude: Double = 0.0
     private val mPlacesViewModel: PlacesViewModel by viewModels()
@@ -97,14 +97,14 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun saveToDatabase() {
-        if (titleEt.text.isNullOrEmpty() && descriptionEt.text.isNullOrEmpty() && locationEt.text.isNullOrEmpty() && savedImageToInternalStorage != null) {
+        if (titleEt.text.isNotEmpty() && descriptionEt.text.isNotEmpty() && locationEt.text.isNotEmpty() && savedImageToInternalStorage != null) {
             val newPlace = PlacesData(
                 id = 0,
-                title = titleEt.toString(),
-                description = descriptionEt.toString(),
+                title = titleEt.text.toString(),
+                description = descriptionEt.text.toString(),
                 image = savedImageToInternalStorage.toString(),
-                date = dateEt.toString(),
-                location = locationEt.toString(),
+                date = dateEt.text.toString(),
+                location = locationEt.text.toString(),
                 latitude = latitude,
                 longitude = logitude
             )
