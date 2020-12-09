@@ -41,6 +41,7 @@
                 android:fontFamily="@font/architects_daughter"
                 android:gravity="top|start"
                 android:text="@string/title"
+                android:padding="5dp"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -52,14 +53,28 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-light"
-                android:text="@string/description"
-                android:textSize="18sp"
                 android:maxLines="5"
                 android:padding="5dp"
+                android:text="@string/description"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="@+id/rowTitle"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@+id/rowImage"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/date"
+                android:padding="5dp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@+id/rowTitle"
+                app:layout_constraintStart_toStartOf="@+id/rowTitle"
                 app:layout_constraintTop_toBottomOf="@+id/rowTitle" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
