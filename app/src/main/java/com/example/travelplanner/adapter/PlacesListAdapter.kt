@@ -20,6 +20,7 @@ class PlacesListAdapter() : RecyclerView.Adapter<PlacesListAdapter.ViewHolder>()
             itemView.rowTitle.text = placesData.title
             itemView.rowDescription.text = placesData.description
             itemView.rowImage.setImageURI(Uri.parse(placesData.image))
+            itemView.rowDate.text = placesData.date
         }
 
     }

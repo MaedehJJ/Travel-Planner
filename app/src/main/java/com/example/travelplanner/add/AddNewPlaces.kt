@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.fragment.app.viewModels
+import com.example.travelplanner.MainActivity
 import com.example.travelplanner.R
 import com.example.travelplanner.database.PlacesData
 import com.example.travelplanner.viewModel.PlacesViewModel
@@ -92,6 +93,7 @@ class AddNewPlaces : AppCompatActivity(), View.OnClickListener {
             }
             R.id.saveButton -> {
                 saveToDatabase()
+                startActivity(Intent(this , MainActivity::class.java))
             }
         }
     }
